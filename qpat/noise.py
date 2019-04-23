@@ -1,8 +1,8 @@
 import numpy as np
 import copy
 
-from utils import pairwise
-from simulator import unitary_simulator
+from .utils import pairwise
+from .simulator import unitary_simulator
 from itertools import product
 
 # ##############################################################################
