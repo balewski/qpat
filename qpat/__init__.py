@@ -10,6 +10,7 @@ from .circuits import generate_grovers
 from .measures import state_fidelity
 from .measures import process_fidelity
 from .measures import total_variation_distance
+from .measures import element_wise_variation_distance
 from .measures import kl_divergence
 
 from .noise import paulis_get
@@ -30,18 +31,24 @@ from .utils import convert_spherical_to_cartesian
 from .utils import convert_qubit_to_cartesian
 from .utils import generate_haar_distribution
 from .utils import get_gate_pos
+from .utils import prob_dist_to_counts
 from .utils import pairwise
+from .utils import get_bit_strings
+from .utils import get_gate_pos_legend
 
 __all__ = [
             "compile_circuit",
             "state_fidelity",
             "process_fidelity",
             "total_variation_distance",
+            "element_wise_variation_distance",
             "kl_divergence",
             "inject_noise",
             "unitary_simulator",
             "statevector_simulator",
             "prob_dist_simulator",
             "generate_haar_distribution",
-            "get_gate_pos"
+            "get_gate_pos",
+            "get_bit_strings",
+            "get_gate_pos_legend"
           ]

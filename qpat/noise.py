@@ -11,9 +11,9 @@ from itertools import product
 # Main func:
 # ##############################################################################
 
-sx = np.matrix( [[0, 1  ], [1 , 0 ]], dtype = 'complex128' )
-sy = np.matrix( [[0, -1j], [1j, 0 ]], dtype = 'complex128' )
-sz = np.matrix( [[1, 0  ], [0 , -1]], dtype = 'complex128' )
+sx = np.matrix( [[0, 1  ], [1 , 0 ]], dtype = 'clongdouble' )
+sy = np.matrix( [[0, -1j], [1j, 0 ]], dtype = 'clongdouble' )
+sz = np.matrix( [[1, 0  ], [0 , -1]], dtype = 'clongdouble' )
 
 paulis  = [ [ sx, sy, sz ] ]
 
@@ -32,7 +32,7 @@ def paulis_dot ( n, qubits = 1 ):
     assert( qubits > 0 )
     assert( len( n ) == 3 ** qubits )
 
-    paulisum = np.zeros( (2 ** qubits, 2 ** qubits), dtype = 'complex128' )
+    paulisum = np.zeros( (2 ** qubits, 2 ** qubits), dtype = 'clongdouble' )
     for i in range( len( n ) ):
         paulisum += n[i] * paulis_get( i, qubits )
     return paulisum
