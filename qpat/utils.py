@@ -1,6 +1,9 @@
 import numpy as np
 from itertools import tee
 
+from scipy import stats
+from scipy.stats import unitary_group
+
 def convert_qubit_to_spherical ( a, b ):
 	theta = 2 * np.arccos( a )
 	phi   = 0
@@ -34,7 +37,7 @@ def generate_haar_distribution ( num_qubits, trials = 100000 ):
 
 def get_gate_pos ( program ):
 	gate_indices = [ i + 1 for i in range( len( program.data ) ) ]
-	gate_pos = [ [ qarg[1] for qarg in gate.qargs ] for gate in program.data ]
+	gate_pos = [ [ qarg[1] for qarg in gate[1] ] for gate in program.data ]
 	return list( zip( gate_indices, gate_pos ) )
 
 def pairwise ( iterable ):
@@ -65,13 +68,13 @@ def get_gate_pos_legend ( program ):
 	qubit_gate_counts = [ 0 for x in range( program.width() ) ]
 	string = ""
 	for index, gate in enumerate( program.data ):
-		name = gate.name
-		qubits = [ qarg[1] for qarg in gate.qargs ]
+		name = gate[0].name
+		qubits = [ qarg[1] for qarg in gate[1] ]
 
 		for qubit in qubits:
 			qubit_gate_counts[ qubit ] += 1
 
-		string += str( index ) + ":\t"
+		string += str( index + 1 ) + ":\t"
 		string += "The "
 		string += name
 		string += " gate,\tqubit "

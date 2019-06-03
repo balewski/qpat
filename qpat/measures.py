@@ -51,7 +51,7 @@ def process_fidelity ( process1, process2 ):
 			data.append( x1 / x2 )
 		return np.asarray( data, dtype = 'longdouble' )
 
-	elif s1.ndim < s2.ndim:
+	elif p1.ndim < p2.ndim:
 		data = []
 		for p2v in p2:
 			x1 = np.abs( np.trace( np.dot( p1.conj().transpose(), p2v ) ) ) ** 2

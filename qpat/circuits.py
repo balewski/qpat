@@ -1,7 +1,7 @@
 from qiskit import QuantumCircuit, ClassicalRegister, QuantumRegister
 from qiskit import BasicAer
 
-from qiskit.transpiler import transpile
+from qiskit.compiler.transpile import transpile
 from qiskit.transpiler import PassManager
 from qiskit.transpiler.passes import Optimize1qGates, CXCancellation
 
