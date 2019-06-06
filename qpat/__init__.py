@@ -17,7 +17,9 @@ from .noise import paulis_get
 from .noise import paulis_dot
 from .noise import construct_noise_operator
 from .noise import sample_unit_vectors
-from .noise import sample_noise_operators
+from .noise import sample_noise_operators_min
+from .noise import sample_noise_operators_exact
+from .noise import sample_noise_operators_max
 from .noise import extend_noise_operators
 from .noise import generate_noise_operators
 from .noise import inject_noise

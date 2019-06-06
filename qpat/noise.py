@@ -52,7 +52,7 @@ def sample_unit_vectors ( num, dim = 3 ):
     vec /= np.linalg.norm ( vec, axis = 0 )
     return vec.T
 
-def sample_noise_operators ( strength_factor, qubits = 1, num = 1000 ):
+def sample_noise_operators_max ( strength_factor, qubits = 1, num = 1000 ):
     assert( strength_factor > 0 and strength_factor <= 1 )
     assert( qubits > 0 )
     assert( num > 0 )
@@ -64,6 +64,38 @@ def sample_noise_operators ( strength_factor, qubits = 1, num = 1000 ):
 
     for n in unit_vectors:
         theta = np.random.uniform( high = theta_max )
+        noise_ops.append( construct_noise_operator( n, theta, qubits ) )
+
+    return np.stack( noise_ops )
+
+def sample_noise_operators_exact ( strength_factor, qubits = 1, num = 1000 ):
+    assert( strength_factor > 0 and strength_factor <= 1 )
+    assert( qubits > 0 )
+    assert( num > 0 )
+
+    noise_ops    = []
+    theta_exact  = strength_factor * np.pi
+    vector_dim   = 3 ** qubits
+    unit_vectors = sample_unit_vectors( num, vector_dim )
+
+    for n in unit_vectors:
+        theta = theta_exact
+        noise_ops.append( construct_noise_operator( n, theta, qubits ) )
+
+    return np.stack( noise_ops )
+
+def sample_noise_operators_min ( strength_factor, qubits = 1, num = 1000 ):
+    assert( strength_factor > 0 and strength_factor <= 1 )
+    assert( qubits > 0 )
+    assert( num > 0 )
+
+    noise_ops    = []
+    theta_min    = strength_factor * np.pi
+    vector_dim   = 3 ** qubits
+    unit_vectors = sample_unit_vectors( num, vector_dim )
+
+    for n in unit_vectors:
+        theta = np.random.uniform( low = theta_min, high = np.pi )
         noise_ops.append( construct_noise_operator( n, theta, qubits ) )
 
     return np.stack( noise_ops )
@@ -117,12 +149,18 @@ def extend_noise_operators ( noise_ops, target_qubits, num_qubits ):
 
     return noise_ops
 
-def generate_noise_operators ( strength_factor, target_qubits, num_qubits, num = 1000 ):
-    noise_ops = sample_noise_operators( strength_factor, len( target_qubits ), num )
+def generate_noise_operators ( strength_factor, target_qubits, num_qubits, num = 1000, sampling = 'max' ):
+    noise_ops = None
+    if sampling == 'max':
+        noise_ops = sample_noise_operators_max( strength_factor, len( target_qubits ), num )
+    elif sampling == 'min':
+        noise_ops = sample_noise_operators_min( strength_factor, len( target_qubits ), num )
+    elif sampling == 'exact':
+        noise_ops = sample_noise_operators_exact( strength_factor, len( target_qubits ), num )
     noise_ops = extend_noise_operators( noise_ops, target_qubits, num_qubits )
     return noise_ops
 
-def inject_noise ( program, num, strength_factor, noise_pos, strength_factor_spc = 0, noise_pos_spc = [] ):
+def inject_noise ( program, num, strength_factor, noise_pos, strength_factor_spc = 0, noise_pos_spc = [], sampling = 'max' ):
     # Slice the program
     program_slices = {}
 
@@ -147,9 +185,9 @@ def inject_noise ( program, num, strength_factor, noise_pos, strength_factor_spc
         errors = None
 
         if index in noise_pos_spc:
-            errors = generate_noise_operators( strength_factor_spc, qubits, program.width(), num )
+            errors = generate_noise_operators( strength_factor_spc, qubits, program.width(), num, sampling )
         else:
-            errors = generate_noise_operators( strength_factor, qubits, program.width(), num )
+            errors = generate_noise_operators( strength_factor, qubits, program.width(), num, sampling )
 
         results = np.matmul( errors, results )
 
