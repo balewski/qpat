@@ -15,7 +15,7 @@ def compile_circuit ( circuit ):
 	pm.append( Optimize1qGates() )
 	pm.append( CXCancellation() )
 	pm.append( Optimize1qGates() )
-	return transpile( circuit, BasicAer.get_backend( 'unitary_simulator' ), basis_gates = ['u1', 'u2', 'u3', 'cx'], pass_manager = pm )
+	return transpile( circuit, basis_gates = ['u1', 'u2', 'u3', 'cx'], optimization_level = 2 )
 
 def pretty_print_circuit ( circuit ):
 	circuit.draw( output='mpl', plot_barriers=False, style={'fold': 26, 'usepiformat': True, 'showindex': True, 'compress': False} )
