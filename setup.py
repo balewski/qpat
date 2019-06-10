@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
                  name='qpat',
-                 version='0.0.2',
+                 version='0.0.3',
                  description='Quantum Program Analysis Tools',
                  url='https://github.com/edyounis/qpat',
                  author='Ed Younis',

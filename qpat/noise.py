@@ -161,10 +161,16 @@ def generate_noise_operators ( strength_factor, target_qubits, num_qubits, num =
     return noise_ops
 
 def inject_noise ( program, num, strength_factor, noise_pos, strength_factor_spc = 0, noise_pos_spc = [], sampling = 'max' ):
+    # Gather Noise Positions
+    # all_noise_pos = union( noise_pos, noise_pos_spc )
+    all_noise_pos = noise_pos + [ x for x in noise_pos_spc if x not in noise_pos ]
+    # some_noise_pos = intersect( noise_pos, noise_pos_spc )
+    some_noise_pos = [ x for x in noise_pos if x in noise_pos_spc ]
+
     # Slice the program
     program_slices = {}
 
-    program_slice_pos = set( [ n[0] for n in noise_pos ] )
+    program_slice_pos = set( [ n[0] for n in all_noise_pos ] )
     program_slice_pos.add( -1 )
     program_slice_pos.add( len(program.data) )
 
@@ -181,10 +187,15 @@ def inject_noise ( program, num, strength_factor, noise_pos, strength_factor_spc
     if 0 not in program_slice_pos:
         results = np.matmul( program_slices[0], results )
 
-    for index, qubits in sorted( noise_pos ):
+    for index, qubits in sorted( all_noise_pos ):
         errors = None
 
-        if index in noise_pos_spc:
+        if index in some_noise_pos:
+            errors = generate_noise_operators( strength_factor_spc, qubits, program.width(), num, sampling )
+            results = np.matmul( errors, results )
+            errors = generate_noise_operators( strength_factor, qubits, program.width(), num, sampling )
+
+        elif index in noise_pos_spc:
             errors = generate_noise_operators( strength_factor_spc, qubits, program.width(), num, sampling )
         else:
             errors = generate_noise_operators( strength_factor, qubits, program.width(), num, sampling )
