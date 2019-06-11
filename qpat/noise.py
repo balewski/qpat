@@ -166,6 +166,10 @@ def inject_noise ( program, num, strength_factor, noise_pos, strength_factor_spc
     all_noise_pos = noise_pos + [ x for x in noise_pos_spc if x not in noise_pos ]
     # some_noise_pos = intersect( noise_pos, noise_pos_spc )
     some_noise_pos = [ x for x in noise_pos if x in noise_pos_spc ]
+    # print( "noise_pos:", noise_pos )
+    # print( "noise_pos_spc:", noise_pos_spc )
+    # print( "all_noise_pos:", all_noise_pos )
+    # print( "some_noise_pos:", some_noise_pos )
 
     # Slice the program
     program_slices = {}
@@ -181,7 +185,7 @@ def inject_noise ( program, num, strength_factor, noise_pos, strength_factor_spc
         if len( program_copy.data ) != 0:
             program_slices[ slice_from ] = ( unitary_simulator( program_copy ) )
 
-    # Insert error and accumalate program
+    # Insert error and accumulate program
     results = np.stack( [ np.identity( 2 ** program.width() ) for i in range( num ) ] )
 
     if 0 not in program_slice_pos:
@@ -190,20 +194,24 @@ def inject_noise ( program, num, strength_factor, noise_pos, strength_factor_spc
     for index, qubits in sorted( all_noise_pos ):
         errors = None
 
-        if index in some_noise_pos:
+        if (index, qubits) in some_noise_pos:
+            # print( "Some_noise_pos: ", index )
             errors = generate_noise_operators( strength_factor_spc, qubits, program.width(), num, sampling )
             results = np.matmul( errors, results )
             errors = generate_noise_operators( strength_factor, qubits, program.width(), num, sampling )
 
-        elif index in noise_pos_spc:
+        elif (index, qubits) in noise_pos_spc:
+            # print( "noise_pos_spc: ", index )
             errors = generate_noise_operators( strength_factor_spc, qubits, program.width(), num, sampling )
         else:
+            # print( "noise_pos: ", index )
+            # print(len(program_slices))
             errors = generate_noise_operators( strength_factor, qubits, program.width(), num, sampling )
 
         results = np.matmul( errors, results )
 
         if index in program_slices:
             results = np.matmul( program_slices[index], results )
-            del program_slices[index]
+            # del program_slices[index]
 
     return results
