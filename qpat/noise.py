@@ -160,16 +160,11 @@ def generate_noise_operators ( strength_factor, target_qubits, num_qubits, num =
     noise_ops = extend_noise_operators( noise_ops, target_qubits, num_qubits )
     return noise_ops
 
-def inject_noise ( program, num, strength_factor, noise_pos, strength_factor_spc = 0, noise_pos_spc = [], sampling = 'max' ):
-    # Gather Noise Positions
-    # all_noise_pos = union( noise_pos, noise_pos_spc )
-    all_noise_pos = noise_pos + [ x for x in noise_pos_spc if x not in noise_pos ]
-    # some_noise_pos = intersect( noise_pos, noise_pos_spc )
-    some_noise_pos = [ x for x in noise_pos if x in noise_pos_spc ]
-    # print( "noise_pos:", noise_pos )
-    # print( "noise_pos_spc:", noise_pos_spc )
-    # print( "all_noise_pos:", all_noise_pos )
-    # print( "some_noise_pos:", some_noise_pos )
+def inject_noise ( program, num, noise_defs, sampling = 'max' ):
+    all_noise_pos = []
+
+    for noise_def in noise_defs:
+        all_noise_pos += [ x for x in noise_def[0] if x not in all_noise_pos ]
 
     # Slice the program
     program_slices = {}
@@ -194,24 +189,12 @@ def inject_noise ( program, num, strength_factor, noise_pos, strength_factor_spc
     for index, qubits in sorted( all_noise_pos ):
         errors = None
 
-        if (index, qubits) in some_noise_pos:
-            # print( "Some_noise_pos: ", index )
-            errors = generate_noise_operators( strength_factor_spc, qubits, program.width(), num, sampling )
-            results = np.matmul( errors, results )
-            errors = generate_noise_operators( strength_factor, qubits, program.width(), num, sampling )
-
-        elif (index, qubits) in noise_pos_spc:
-            # print( "noise_pos_spc: ", index )
-            errors = generate_noise_operators( strength_factor_spc, qubits, program.width(), num, sampling )
-        else:
-            # print( "noise_pos: ", index )
-            # print(len(program_slices))
-            errors = generate_noise_operators( strength_factor, qubits, program.width(), num, sampling )
-
-        results = np.matmul( errors, results )
+        for noise_def in noise_defs:
+            if (index, qubits) in noise_def[0]:
+                errors = generate_noise_operators( noise_def[1], qubits, program.width(), num, sampling )
+                results = np.matmul( errors, results )
 
         if index in program_slices:
             results = np.matmul( program_slices[index], results )
-            # del program_slices[index]
 
     return results
