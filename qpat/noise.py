@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.stats
 import copy
 
 from .utils import pairwise
@@ -51,6 +52,22 @@ def sample_unit_vectors ( num, dim = 3 ):
     vec  = np.random.randn( dim, num )
     vec /= np.linalg.norm ( vec, axis = 0 )
     return vec.T
+
+def sample_noise_operators_gauss ( strength_factor, qubits = 1, num = 1000 ):
+    assert( strength_factor > 0 and strength_factor <= 1 )
+    assert( qubits > 0 )
+    assert( num > 0 )
+
+    noise_ops    = []
+    theta_std    = strength_factor * np.pi
+    vector_dim   = 3 ** qubits
+    unit_vectors = sample_unit_vectors( num, vector_dim )
+
+    for n in unit_vectors:
+        theta = scipy.stats.truncnorm.rvs( 0, 1 ) * theta_std
+        noise_ops.append( construct_noise_operator( n, theta, qubits ) )
+
+    return np.stack( noise_ops )
 
 def sample_noise_operators_max ( strength_factor, qubits = 1, num = 1000 ):
     assert( strength_factor > 0 and strength_factor <= 1 )
@@ -157,6 +174,8 @@ def generate_noise_operators ( strength_factor, target_qubits, num_qubits, num =
         noise_ops = sample_noise_operators_min( strength_factor, len( target_qubits ), num )
     elif sampling == 'exact':
         noise_ops = sample_noise_operators_exact( strength_factor, len( target_qubits ), num )
+    elif sampling == 'gauss':
+        noise_ops = sample_noise_operators_gauss( strength_factor, len( target_qubits ), num )
     noise_ops = extend_noise_operators( noise_ops, target_qubits, num_qubits )
     return noise_ops
 
