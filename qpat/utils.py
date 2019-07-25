@@ -65,7 +65,7 @@ def get_bit_strings ( qubits ):
 	return bit_strings
 
 def get_gate_pos_legend ( program ):
-	qubit_gate_counts = [ 0 for x in range( program.width() ) ]
+	qubit_gate_counts = [ 0 for x in range( len( program.qubits ) ) ]
 	string = ""
 	for index, gate in enumerate( program.data ):
 		name = gate[0].name

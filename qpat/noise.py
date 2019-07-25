@@ -200,7 +200,7 @@ def inject_noise ( program, num, noise_defs, sampling = 'max' ):
             program_slices[ slice_from ] = ( unitary_simulator( program_copy ) )
 
     # Insert error and accumulate program
-    results = np.stack( [ np.identity( 2 ** program.width() ) for i in range( num ) ] )
+    results = np.stack( [ np.identity( 2 ** len( program.qubits ) ) for i in range( num ) ] )
 
     if 0 not in program_slice_pos:
         results = np.matmul( program_slices[0], results )
@@ -210,7 +210,7 @@ def inject_noise ( program, num, noise_defs, sampling = 'max' ):
 
         for noise_def in noise_defs:
             if (index, qubits) in noise_def[0]:
-                errors = generate_noise_operators( noise_def[1], qubits, program.width(), num, sampling )
+                errors = generate_noise_operators( noise_def[1], qubits, len( program.qubits ), num, sampling )
                 results = np.matmul( errors, results )
 
         if index in program_slices:
