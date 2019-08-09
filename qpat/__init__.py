@@ -37,6 +37,7 @@ from .utils import prob_dist_to_counts
 from .utils import pairwise
 from .utils import get_bit_strings
 from .utils import get_gate_pos_legend
+from .utils import get_gate_indices
 
 __all__ = [
             "compile_circuit",
@@ -52,5 +53,6 @@ __all__ = [
             "generate_haar_distribution",
             "get_gate_pos",
             "get_bit_strings",
+            "get_gate_indices",
             "get_gate_pos_legend"
           ]

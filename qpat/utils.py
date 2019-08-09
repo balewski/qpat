@@ -35,6 +35,9 @@ def generate_haar_distribution ( num_qubits, trials = 100000 ):
 
 	return haar
 
+def get_gate_indices ( program ):
+    return [ i + 1 for i in range( len( program.data ) ) ]
+
 def get_gate_pos ( program ):
 	gate_indices = [ i + 1 for i in range( len( program.data ) ) ]
 	gate_pos = [ [ qarg[1] for qarg in gate[1] ] for gate in program.data ]

@@ -179,11 +179,14 @@ def generate_noise_operators ( strength_factor, target_qubits, num_qubits, num =
     noise_ops = extend_noise_operators( noise_ops, target_qubits, num_qubits )
     return noise_ops
 
+
 def inject_noise ( program, num, noise_defs, sampling = 'max' ):
     all_noise_pos = []
 
     for noise_def in noise_defs:
-        all_noise_pos += [ x for x in noise_def[0] if x not in all_noise_pos ]
+        for noise_pos in noise_def[0]:
+            if noise_pos not in all_noise_pos:
+                all_noise_pos.append( noise_pos )
 
     # Slice the program
     program_slices = {}
@@ -195,7 +198,7 @@ def inject_noise ( program, num, noise_defs, sampling = 'max' ):
     for slice_from, slice_to in pairwise( sorted( program_slice_pos ) ):
         slice_from = 0 if slice_from == -1 else slice_from
         program_copy      = copy.deepcopy( program )
-        program_copy.data = program_copy.data[ slice_from : slice_to ]
+        program_copy.data = program_copy.data[ slice_from: slice_to ]
         if len( program_copy.data ) != 0:
             program_slices[ slice_from ] = ( unitary_simulator( program_copy ) )
 
@@ -209,9 +212,10 @@ def inject_noise ( program, num, noise_defs, sampling = 'max' ):
         errors = None
 
         for noise_def in noise_defs:
-            if (index, qubits) in noise_def[0]:
-                errors = generate_noise_operators( noise_def[1], qubits, len( program.qubits ), num, sampling )
-                results = np.matmul( errors, results )
+            for noise_pos in noise_def[0]:
+                if (index, qubits) == noise_pos:
+                    errors = generate_noise_operators( noise_def[1], qubits, len( program.qubits ), num, sampling )
+                    results = np.matmul( errors, results )
 
         if index in program_slices:
             results = np.matmul( program_slices[index], results )
