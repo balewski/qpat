@@ -6,17 +6,19 @@ from .utils import pairwise
 from .simulator import unitary_simulator
 from itertools import product
 
-# ##############################################################################
-# Noise is represented as a random unitary rotation
-# TODO: Better Description
-# Main func:
-# ##############################################################################
+"""
+Noise is represented as a random unitary rotation. Noise can be constructed
+and injected into a quantum program using the `inject_noise` function.
+This module includes all definitions necessary to construct and inject
+noise into a quantum circuit.
+"""
 
 sx = np.matrix( [[0, 1  ], [1 , 0 ]], dtype = 'clongdouble' )
 sy = np.matrix( [[0, -1j], [1j, 0 ]], dtype = 'clongdouble' )
 sz = np.matrix( [[1, 0  ], [0 , -1]], dtype = 'clongdouble' )
 
 paulis  = [ [ sx, sy, sz ] ]
+
 
 def paulis_get ( i, qubits = 1 ):
     assert( qubits > 0 )
@@ -29,6 +31,7 @@ def paulis_get ( i, qubits = 1 ):
 
     return paulis[qubits-1][i]
 
+
 def paulis_dot ( n, qubits = 1 ):
     assert( qubits > 0 )
     assert( len( n ) == 3 ** qubits )
@@ -38,12 +41,14 @@ def paulis_dot ( n, qubits = 1 ):
         paulisum += n[i] * paulis_get( i, qubits )
     return paulisum
 
+
 def construct_noise_operator ( n, theta, qubits = 1 ):
     assert( theta > 0 and theta <= np.pi )
     assert( qubits > 0 )
     assert( len( n ) == 3 ** qubits )
 
     return np.identity(2 ** qubits) * np.cos(theta/2) - (0+1j) * paulis_dot(n, qubits) * np.sin(theta/2)
+
 
 def sample_unit_vectors ( num, dim = 3 ):
     assert( num > 0 )
@@ -52,6 +57,7 @@ def sample_unit_vectors ( num, dim = 3 ):
     vec  = np.random.randn( dim, num )
     vec /= np.linalg.norm ( vec, axis = 0 )
     return vec.T
+
 
 def sample_noise_operators_gauss ( strength_factor, qubits = 1, num = 1000 ):
     assert( strength_factor > 0 and strength_factor <= 1 )
@@ -69,6 +75,7 @@ def sample_noise_operators_gauss ( strength_factor, qubits = 1, num = 1000 ):
 
     return np.stack( noise_ops )
 
+
 def sample_noise_operators_max ( strength_factor, qubits = 1, num = 1000 ):
     assert( strength_factor > 0 and strength_factor <= 1 )
     assert( qubits > 0 )
@@ -85,12 +92,14 @@ def sample_noise_operators_max ( strength_factor, qubits = 1, num = 1000 ):
 
     return np.stack( noise_ops )
 
+
 def sample_noise_operators_exact ( strength_factor, qubits = 1, num = 1000 ):
     assert( strength_factor > 0 and strength_factor <= 1 )
     assert( qubits > 0 )
     assert( num > 0 )
 
     noise_ops    = []
+# Main func:
     theta_exact  = strength_factor * np.pi
     vector_dim   = 3 ** qubits
     unit_vectors = sample_unit_vectors( num, vector_dim )
@@ -100,6 +109,7 @@ def sample_noise_operators_exact ( strength_factor, qubits = 1, num = 1000 ):
         noise_ops.append( construct_noise_operator( n, theta, qubits ) )
 
     return np.stack( noise_ops )
+
 
 def sample_noise_operators_min ( strength_factor, qubits = 1, num = 1000 ):
     assert( strength_factor > 0 and strength_factor <= 1 )
@@ -118,6 +128,7 @@ def sample_noise_operators_min ( strength_factor, qubits = 1, num = 1000 ):
     return np.stack( noise_ops )
 
 swap = np.matrix( [ [1,0,0,0], [0,0,1,0], [0,1,0,0], [0,0,0,1] ] )
+
 
 def extend_noise_operators ( noise_ops, target_qubits, num_qubits ):
     assert( len( noise_ops ) > 0 )
@@ -166,6 +177,7 @@ def extend_noise_operators ( noise_ops, target_qubits, num_qubits ):
 
     return noise_ops
 
+
 def generate_noise_operators ( strength_factor, target_qubits, num_qubits, num = 1000, sampling = 'max' ):
     noise_ops = None
     if sampling == 'max':
@@ -181,6 +193,25 @@ def generate_noise_operators ( strength_factor, target_qubits, num_qubits, num =
 
 
 def inject_noise ( program, num, noise_defs, sampling = 'max' ):
+    """
+    Inject noise into `program` according to the noise definitions
+    listed in `noise_defs.`
+
+    Args:
+        program (QuantumCircuit): The program to inject with noise.
+
+        num (Integer): The number of trials
+
+        noise_defs (List of Noise Definitions):
+            Defines how/where to inject noise.
+            A Noise Definition is: Tuple of List of Gate Positions and Strength
+            A Gate Position is: A Tuple of gate index and list of qubit indices
+            Strength is: A floating point number between 0 and 1
+
+        sampling (Str): Defines how to sample noise strength
+            Either max, min, exact, or gauss
+    """
+
     all_noise_pos = []
 
     for noise_def in noise_defs:

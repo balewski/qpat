@@ -4,6 +4,12 @@ from itertools import tee
 from scipy import stats
 from scipy.stats import unitary_group
 
+"""
+Several utility functions are implemented in this module.
+The most notable one is `get_gate_pos` which will return an iterable
+of all Gate Positions for a circuit.
+"""
+
 
 def convert_qubit_to_spherical ( a, b ):
     theta = 2 * np.arccos( a )
