@@ -125,3 +125,25 @@ def get_gate_pos_legend ( program ):
         string += " gate.\n"
 
     return string
+
+
+#= = = = = = = = = = = = = = = = 
+def get_gate_pos_info ( program ):
+    # returns labels for all gates as a dictionary 
+    qubit_gate_counts = [ 0 for x in range( len( program.qubits ) ) ]
+    outD={}
+    for index, gate in enumerate( program.data ):
+        name = gate[0].name
+        id=index+1 # this is hoq qskit counts gates
+        qubits = [ qarg[1] for qarg in gate[1] ]
+        #print('idx=',index,name,qubits)
+        rec={'name':name,'qubits':qubits}
+        outD[id]=rec  
+    return outD
+''' example output:
+{1: {'name': 'u3', 'qubits': [0]},
+ 2: {'name': 'u1', 'qubits': [1]},
+ 3: {'name': 'cx', 'qubits': [0, 1]},
+ 4: {'name': 'u3', 'qubits': [0]},
+}
+'''

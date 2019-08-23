@@ -37,12 +37,13 @@ from .utils import prob_dist_to_counts
 from .utils import pairwise
 from .utils import get_bit_strings
 from .utils import get_gate_pos_legend
+from .utils import get_gate_pos_info
 from .utils import get_gate_indices
 
 __all__ = [
             "compile_circuit",
             "state_fidelity",
-            "process_fidelity",
+             "process_fidelity",
             "total_variation_distance",
             "element_wise_variation_distance",
             "kl_divergence",
@@ -54,5 +55,6 @@ __all__ = [
             "get_gate_pos",
             "get_bit_strings",
             "get_gate_indices",
-            "get_gate_pos_legend"
+            "get_gate_pos_legend",
+            "get_gate_pos_info",
           ]

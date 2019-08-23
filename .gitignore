@@ -1,0 +1,19 @@
+# Add any directories, files, or patterns you don't want to be tracked by version control
+*~
+*pyc
+*yaml
+out*
+__pycache__/
+L*
+web/
+slurm-*
+*svg
+*pdf
+logs/*
+plot/
+*h5
+*json
+*#
+*txt
+*.csv
+qpat.egg-info
