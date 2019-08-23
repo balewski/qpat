@@ -1,0 +1,2 @@
+To Install a project in editable mode (i.e. setuptools “develop mode”) from a local project path :
+pip install -e .

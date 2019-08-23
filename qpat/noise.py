@@ -43,7 +43,7 @@ def paulis_dot ( n, qubits = 1 ):
 
 
 def construct_noise_operator ( n, theta, qubits = 1 ):
-    assert( theta > 0 and theta <= np.pi )
+    # assert( theta > 0 and theta <= np.pi )  # disabled by Jan for gauss2
     assert( qubits > 0 )
     assert( len( n ) == 3 ** qubits )
 
@@ -73,6 +73,18 @@ def sample_noise_operators_gauss ( strength_factor, qubits = 1, num = 1000 ):
         theta = scipy.stats.truncnorm.rvs( 0, 1 ) * theta_std
         noise_ops.append( construct_noise_operator( n, theta, qubits ) )
 
+    return np.stack( noise_ops )
+
+# added by Jan
+def sample_noise_operators_gauss2 ( theta_std, qubits = 1, num = 1000 ):
+    assert( qubits > 0 )
+    assert( num > 0 )
+    noise_ops    = []
+    vector_dim   = 3 ** qubits
+    unit_vectors = sample_unit_vectors( num, vector_dim )
+    for n in unit_vectors:
+        theta = scipy.stats.truncnorm.rvs( -3, 3 ) * theta_std
+        noise_ops.append( construct_noise_operator( n, theta, qubits ) )
     return np.stack( noise_ops )
 
 
@@ -188,6 +200,8 @@ def generate_noise_operators ( strength_factor, target_qubits, num_qubits, num =
         noise_ops = sample_noise_operators_exact( strength_factor, len( target_qubits ), num )
     elif sampling == 'gauss':
         noise_ops = sample_noise_operators_gauss( strength_factor, len( target_qubits ), num )
+    elif sampling == 'gauss2':
+        noise_ops = sample_noise_operators_gauss2( strength_factor, len( target_qubits ), num )
     noise_ops = extend_noise_operators( noise_ops, target_qubits, num_qubits )
     return noise_ops
 
@@ -209,12 +223,12 @@ def inject_noise ( program, num, noise_defs, sampling = 'max' ):
             Strength is: A floating point number between 0 and 1
 
         sampling (Str): Defines how to sample noise strength
-            Either max, min, exact, or gauss
+            Either max, min, exact, or gauss, or gauss2
     """
 
     all_noise_pos = []
 
-    for noise_def in noise_defs:
+    for noise_def in noise_defs:        
         for noise_pos in noise_def[0]:
             if noise_pos not in all_noise_pos:
                 all_noise_pos.append( noise_pos )
@@ -245,7 +259,8 @@ def inject_noise ( program, num, noise_defs, sampling = 'max' ):
         for noise_def in noise_defs:
             for noise_pos in noise_def[0]:
                 if (index, qubits) == noise_pos:
-                    errors = generate_noise_operators( noise_def[1], qubits, len( program.qubits ), num, sampling )
+                    sigTheta=noise_def[1]
+                    errors = generate_noise_operators( sigTheta, qubits, len( program.qubits ), num, sampling )
                     results = np.matmul( errors, results )
 
         if index in program_slices:
